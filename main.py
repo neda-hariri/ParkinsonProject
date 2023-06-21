@@ -1,9 +1,12 @@
 from ThesisPark import ThesisPark
+import faulthandler
+import os
 
 
-# Press the green button in the gutter to run the script.
+
 if __name__ == '__main__':
-    init = ThesisPark()
-    init.starter()
+    tesos=os.system('whoami')
+    faulthandler.enable()
+    initPark = ThesisPark()
+    initPark.starter()
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
