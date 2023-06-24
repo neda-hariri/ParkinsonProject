@@ -149,7 +149,7 @@ class ThesisPark:
             return
 
         dataframes_result_distance = pd.concat(dataframes_collection_distance)
-        dataframes_result_velocity = pd.concat(dataframes_collection_velocity)statuss
+        dataframes_result_velocity = pd.concat(dataframes_collection_velocity)
         return dataframes_result_distance, dataframes_result_velocity, configs
 
     def feature_extraction(self, df, configs):
