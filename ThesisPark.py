@@ -1,22 +1,26 @@
 import os
-
 from sklearn.feature_selection import SelectKBest, f_regression
 from sklearn.model_selection import train_test_split
-
 import json
 import pandas as pd
-import numpy as np
 import matplotlib.pyplot as plt
-import math
 from tsfresh import extract_features
 from tsfresh.utilities.dataframe_functions import impute
-import openpyxl
-import scipy
 from Configs import Configs
+from FeatureSelector import FeatureSelector
 
+from Utility import Utility
 
 class ThesisPark:
+    utility = None
+
+    def __init__(self):
+        ThesisPark.utility = Utility()
+
     def starter(self):
+        feature_selector = FeatureSelector()
+        feature_selector.feature_selector_caller(self.get_configs(False))
+
         ## initiator (should input files merged, instead of calculation should only save graphs of input?
         self.initiator(True, False)
 
@@ -61,27 +65,15 @@ class ThesisPark:
                 dataframes_result_distance_h.to_excel('output_distance' + configs_h.output_extension + '.xlsx')
                 dataframes_result_velocity_h.to_excel('output_velocity' + configs_h.output_extension + '.xlsx')
 
-    @staticmethod
-    def calculate_distance(point1, point2):
-        (x1, y1, z1) = point1
-        (x2, y2, z2) = point2
-        distance = math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2 + (z2 - z1) ** 2)
-        return distance
 
-    def get_files_in_directory(self, directory):
-        file_list = []
-        for root, directories, files in os.walk(directory):
-            for file in files:
-                file_list.append(os.path.join(root, file))
-        return file_list
 
     def get_configs(self, is_pd):
         if is_pd:
-            file_paths = self.get_files_in_directory("json/PD/")
+            file_paths = ThesisPark.utility.get_files_in_directory("json/PD/")
             jointPositionTags = 'joint_positions'
             output_extension = '_parkinson'
         else:
-            file_paths = self.get_files_in_directory("json/HEALTHY/")
+            file_paths = ThesisPark.utility.get_files_in_directory("json/HEALTHY/")
             jointPositionTags = 'joints_position'
             output_extension = '_healthy'
 
@@ -95,6 +87,10 @@ class ThesisPark:
         is_pd = "is_pd"
         return Configs(file_paths, jointPositionTags, frames, hands, timestamp_usec, timestamp, distance, velocity,
                        output_extension, img_output_dir, is_pd)
+
+
+
+
 
     def data_extraction_calculation(self, is_input_pd, is_graph_saved_only):
         dataframes_collection_distance = []
@@ -125,7 +121,7 @@ class ThesisPark:
             df[configs.timestamp] = timestamp_data
             # Perform the required computations on the columns
             df[configs.joint_Position_tags] = df[configs.joint_Position_tags].apply(
-                lambda x: self.calculate_distance(x[8], x[4])).astype(
+                lambda x: ThesisPark.utility.calculate_distance(x[8], x[4])).astype(
                 float)
 
             df = df.rename(columns={configs.joint_Position_tags: configs.distance})
@@ -138,6 +134,7 @@ class ThesisPark:
             df["id"] = file_path
             df.set_index('id')
             df['id'] = df['id'].astype(str)
+
             if is_graph_saved_only:
                 self.save_graphs(df, configs, file_path)
             else:
@@ -219,3 +216,6 @@ class ThesisPark:
         # Get the selected feature names
         selected_feature_names = X.columns[selector.get_support(indices=True)].tolist()
         return data[selected_feature_names]
+
+
+
