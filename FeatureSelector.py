@@ -13,14 +13,22 @@ class FeatureSelector:
 
     def feature_selector_caller(self, configs):
 
-        df = FeatureSelector.utility.get_dataframe_from_excel('output/output_distance.xlsx')['Sheet1']
-        df = df.iloc[:, 1:]
-        # Example usage:
-        # Assuming 'df' is your input DataFrame
-        num_useful_features = self.find_useful_features(df)
+        df_distance = FeatureSelector.utility.get_dataframe_from_excel('output/output_distance.xlsx')['Sheet1']
+        df_velocity = FeatureSelector.utility.get_dataframe_from_excel('output/output_velocity.xlsx')['Sheet1']
+
+        df_distance = df_distance.iloc[:, 1:]
+        # Assuming 'df_distance' is your input DataFrame
+        num_useful_features = self.find_useful_features(df_distance)
         print("Number of useful features to keep:", num_useful_features)
-        restest = self.boruta_feature_selection(df, configs.is_pd)
-        print(restest)
+        boruta_result = self.boruta_feature_selection(df_distance, configs.is_pd)
+        boruta_result.to_excel('output/output_distance_selected.xlsx')
+
+        df_velocity = df_velocity.iloc[:, 1:]
+        # Assuming 'df_velocity' is your input DataFrame
+        num_useful_features_vel = self.find_useful_features(df_velocity)
+        print("Number of useful features to keep:", num_useful_features_vel)
+        boruta_result_vel = self.boruta_feature_selection(df_velocity, configs.is_pd)
+        boruta_result_vel.to_excel('output/output_velocity_selected.xlsx')
 
     def find_useful_features(self, dataframe, threshold_variance=0.95):
         """
