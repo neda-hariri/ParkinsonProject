@@ -5,6 +5,7 @@ import numpy as np
 from sklearn.impute import SimpleImputer
 from sklearn.ensemble import RandomForestClassifier
 import pandas as pd
+import sklearn.neighbors
 
 class FeatureSelector:
     utility =None
@@ -17,20 +18,27 @@ class FeatureSelector:
         df_velocity = FeatureSelector.utility.get_dataframe_from_excel('output/output_velocity.xlsx')['Sheet1']
 
         df_distance = df_distance.iloc[:, 1:]
-        # Assuming 'df_distance' is your input DataFrame
-        num_useful_features = self.find_useful_features(df_distance)
-        print("Number of useful features to keep:", num_useful_features)
+        df_velocity = df_velocity.iloc[:, 1:]
+
+
+        # # Assuming 'df_distance' is your input DataFrame
+        # num_useful_features = self.find_useful_features(df_distance)
+        # print("Number of useful features to keep:", num_useful_features)
+        #
+
+        # # Assuming 'df_velocity' is your input DataFrame
+        # num_useful_features_vel = self.find_useful_features(df_velocity)
+        # print("Number of useful features to keep:", num_useful_features_vel)
+
+
         boruta_result = self.boruta_feature_selection(df_distance, configs.is_pd)
         boruta_result.to_excel('output/output_distance_selected.xlsx')
 
-        df_velocity = df_velocity.iloc[:, 1:]
-        # Assuming 'df_velocity' is your input DataFrame
-        num_useful_features_vel = self.find_useful_features(df_velocity)
-        print("Number of useful features to keep:", num_useful_features_vel)
+
         boruta_result_vel = self.boruta_feature_selection(df_velocity, configs.is_pd)
         boruta_result_vel.to_excel('output/output_velocity_selected.xlsx')
 
-    def find_useful_features(self, dataframe, threshold_variance=0.95):
+    def find_useful_features(self, dataframe, threshold_variance=0.90):
         """
         Perform PCA on the input dataframe and find the number of useful features to keep based on the given threshold.
 
@@ -80,7 +88,7 @@ class FeatureSelector:
         y = dataframe[target_column]
 
         # Initialize the Random Forest classifier
-        rf = RandomForestClassifier(n_jobs=-1, class_weight='balanced', max_depth=5)
+        rf = RandomForestClassifier(n_jobs=-1, class_weight='balanced', max_depth=4)
 
         # Initialize the Boruta feature selector
         boruta_selector = BorutaPy(estimator=rf, n_estimators='auto', verbose=2, random_state=1)
@@ -98,4 +106,13 @@ class FeatureSelector:
         # result_df = pd.DataFrame({'Feature': X, 'Importance': feature_importance})
         # result_df = result_df.sort_values(by='Importance', ascending=True).reset_index(drop=True)
 
+        result[target_column] = y
         return result
+
+
+    #KNN
+    #knn = KNeighborsClassifier(n_neighbors=5)
+
+    #knn.fit(result, classes)
+
+    #prediction = knn.predict(new_point)

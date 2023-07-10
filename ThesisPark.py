@@ -1,3 +1,4 @@
+import math
 import os
 from sklearn.feature_selection import SelectKBest, f_regression
 from sklearn.model_selection import train_test_split
@@ -8,8 +9,11 @@ from tsfresh import extract_features
 from tsfresh.utilities.dataframe_functions import impute
 from Configs import Configs
 from FeatureSelector import FeatureSelector
-
+from Classifiers import Classifiers
 from Utility import Utility
+from sklearn import metrics
+import numpy as np
+
 
 class ThesisPark:
     utility = None
@@ -18,11 +22,52 @@ class ThesisPark:
         ThesisPark.utility = Utility()
 
     def starter(self):
+        # self.feature_selectore_caller()
+        self.classifier_caller()
+        ## initiator (should input files merged, instead of calculation should only save graphs of input?
+        # self.initiator(True, False)
+
+    def classifier_caller(self):
+        configs = self.get_configs(False)
+        df_distance = ThesisPark.utility.get_dataframe_from_excel('output/output_distance_selected.xlsx')['Sheet1']
+        # df_velocity = FeatureSelector.utility.get_dataframe_from_excel('output/output_velocity_selected.xlsx')['Sheet1']
+        X_distance = df_distance.drop(columns=[configs.is_pd])
+        y_distance = df_distance[configs.is_pd]
+        train_data, test_data, train_labels, test_labels = ThesisPark.utility.get_test_train_from_dataframe(X_distance,
+                                                                                                            y_distance)
+        classifier = Classifiers()
+
+        accuracy = float('-inf')
+        i_max_accuracy = -1;
+        f1score = 0
+        precision = 0
+        recall = 0
+        for i in range(1, 100):
+            knn_model = classifier.train_knn_model(train_data, train_labels, i)
+            prediction = classifier.predict_with_knn(knn_model, test_data)
+
+            test_lb = np.floor((test_labels.values * 1000))
+            pr_lb = np.floor(prediction * 1000)
+            accuracy_i = metrics.accuracy_score(test_lb, pr_lb)
+            #f1score_i = metrics.f1_score(test_lb, pr_lb, pos_label="pos")
+            #precision_i = metrics.precision_score(test_lb, pr_lb)
+            #recall_i = metrics.recall_score(test_lb, pr_lb)
+            if accuracy < accuracy_i:
+                accuracy = accuracy_i
+                #f1score = f1score_i
+                #precision = precision_i
+                #recall = recall_i
+                i_max_accuracy = i
+
+        print(str(i_max_accuracy) + "\n")
+        print("accuracy= " + str(accuracy))
+        #print("f1score= " + str(f1score))
+        #print("precision= " + str(precision))
+        #print("recall= " + str(recall))
+
+    def feature_selectore_caller(self):
         feature_selector = FeatureSelector()
         feature_selector.feature_selector_caller(self.get_configs(False))
-
-        ## initiator (should input files merged, instead of calculation should only save graphs of input?
-        self.initiator(True, False)
 
     def initiator(self, should_output_merged, is_graph_saved_only):
         if is_graph_saved_only:
@@ -65,8 +110,6 @@ class ThesisPark:
                 dataframes_result_distance_h.to_excel('output_distance' + configs_h.output_extension + '.xlsx')
                 dataframes_result_velocity_h.to_excel('output_velocity' + configs_h.output_extension + '.xlsx')
 
-
-
     def get_configs(self, is_pd):
         if is_pd:
             file_paths = ThesisPark.utility.get_files_in_directory("json/PD/")
@@ -87,10 +130,6 @@ class ThesisPark:
         is_pd = "is_pd"
         return Configs(file_paths, jointPositionTags, frames, hands, timestamp_usec, timestamp, distance, velocity,
                        output_extension, img_output_dir, is_pd)
-
-
-
-
 
     def data_extraction_calculation(self, is_input_pd, is_graph_saved_only):
         dataframes_collection_distance = []
@@ -216,6 +255,3 @@ class ThesisPark:
         # Get the selected feature names
         selected_feature_names = X.columns[selector.get_support(indices=True)].tolist()
         return data[selected_feature_names]
-
-
-

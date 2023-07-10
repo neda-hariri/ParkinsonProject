@@ -1,6 +1,8 @@
 import math
 import os
 import pandas as pd
+from sklearn.model_selection import train_test_split
+
 class Utility:
     def get_dataframe_from_excel(self, uri):
         df = pd.read_excel(uri, sheet_name=None)
@@ -18,3 +20,6 @@ class Utility:
             for file in files:
                 file_list.append(os.path.join(root, file))
         return file_list
+
+    def get_test_train_from_dataframe(self,data,labels):
+        return train_test_split(data, labels, test_size=0.2, random_state=42)
