@@ -23,9 +23,9 @@ class ThesisPark:
 
     def starter(self):
         ## initiator (should input files merged, instead of calculation should only save graphs of input?
-        #self.initiator(True, False) #To create excel file/graphs (if == true : merge paitants , if == true: image save)
+        self.initiator(True, False) #To create excel file/graphs (if == true : merge paitants , if == true: image save)
 
-        #self.feature_selectore_caller() # use feature selector for example bruta for excel files
+        self.feature_selector_caller() # use feature selector for example bruta for excel files
 
         self.classifier_caller()
 
@@ -50,7 +50,7 @@ class ThesisPark:
         classifier.xg_boost_classifier_init(train_data, train_labels, test_data, test_labels)
         classifier.svm_model_classifier_init(train_data, train_labels, test_data, test_labels)
 
-    def feature_selectore_caller(self):
+    def feature_selector_caller(self):
         feature_selector = FeatureSelector()
         feature_selector.feature_selector_caller(self.get_configs(False))
 
@@ -77,14 +77,10 @@ class ThesisPark:
                 dataframes_result_velocity.append(dataframes_result_velocity_h)
 
                 dataframes_result_distance_output = pd.concat(dataframes_result_distance)
-                dataframes_result_distance_output_with_selected_features = self.select_features(
-                    dataframes_result_distance_output, configs_pd)
-                dataframes_result_distance_output_with_selected_features.to_excel('output_distance.xlsx')
+                dataframes_result_distance_output.to_excel('output/output_distance.xlsx')
 
                 dataframes_result_velocity_output = pd.concat(dataframes_result_velocity)
-                dataframes_result_distance_output_with_selected_features = self.select_features(
-                    dataframes_result_distance_output, configs_pd)
-                dataframes_result_distance_output_with_selected_features.to_excel('output_velocity.xlsx')
+                dataframes_result_velocity_output.to_excel('output/output_velocity.xlsx')
             else:
                 (dataframes_result_distance_pd, dataframes_result_velocity_pd,
                  configs_pd) = self.data_extraction_calculation(True, is_graph_saved_only)
@@ -224,19 +220,3 @@ class ThesisPark:
         plt.savefig(velocity_chart_path)
         plt.close(velocity_chart)
 
-    def select_features(self, data, configs):
-        # Separate the features (X) and the target variable (y)
-        X = data.drop(configs.is_pd, axis=1)
-        y = data[configs.is_pd]
-
-        # Split the data into training and testing sets
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-
-        # Perform feature selection using SelectKBest and f_regression
-        selector = SelectKBest(score_func=f_regression, k=3)  # Select the top 3 features
-        X_train_selected = selector.fit_transform(X_train, y_train)
-        X_test_selected = selector.transform(X_test)
-
-        # Get the selected feature names
-        selected_feature_names = X.columns[selector.get_support(indices=True)].tolist()
-        return data[selected_feature_names]

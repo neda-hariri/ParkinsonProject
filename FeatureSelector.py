@@ -20,22 +20,19 @@ class FeatureSelector:
         df_distance = df_distance.iloc[:, 1:]
         df_velocity = df_velocity.iloc[:, 1:]
 
+        print("***************** Starting PCA *****************")
+        num_useful_features_df_distance = self.find_useful_features(df_distance)
+        num_useful_features_df_velocity = self.find_useful_features(df_velocity)
+        print("Number of useful features to keep distance: ", num_useful_features_df_distance)
+        print("Number of useful features to keep for velocity: ", num_useful_features_df_velocity)
+        print("***************** Starting Boruta *****************")
+        boruta_result, selected_feature_num_dis = self.boruta_feature_selection(df_distance, configs.is_pd)
+        print("Number of useful features to keep distance: ", selected_feature_num_dis)
 
-        # # Assuming 'df_distance' is your input DataFrame
-        # num_useful_features = self.find_useful_features(df_distance)
-        # print("Number of useful features to keep:", num_useful_features)
-        #
-
-        # # Assuming 'df_velocity' is your input DataFrame
-        # num_useful_features_vel = self.find_useful_features(df_velocity)
-        # print("Number of useful features to keep:", num_useful_features_vel)
-
-
-        boruta_result = self.boruta_feature_selection(df_distance, configs.is_pd)
         boruta_result.to_excel('output/output_distance_selected.xlsx')
 
-
-        boruta_result_vel = self.boruta_feature_selection(df_velocity, configs.is_pd)
+        boruta_result_vel, selected_feature_num_vel = self.boruta_feature_selection(df_velocity, configs.is_pd)
+        print("Number of useful features to keep for velocity: ", selected_feature_num_vel)
         boruta_result_vel.to_excel('output/output_velocity_selected.xlsx')
 
     def find_useful_features(self, dataframe, threshold_variance=0.90):
@@ -107,12 +104,4 @@ class FeatureSelector:
         # result_df = result_df.sort_values(by='Importance', ascending=True).reset_index(drop=True)
 
         result[target_column] = y
-        return result
-
-
-    #KNN
-    #knn = KNeighborsClassifier(n_neighbors=5)
-
-    #knn.fit(result, classes)
-
-    #prediction = knn.predict(new_point)
+        return result, len(selected_features)
