@@ -22,48 +22,33 @@ class ThesisPark:
         ThesisPark.utility = Utility()
 
     def starter(self):
-        # self.feature_selectore_caller()
-        self.classifier_caller()
         ## initiator (should input files merged, instead of calculation should only save graphs of input?
-        # self.initiator(True, False)
+        #self.initiator(True, False) #To create excel file/graphs (if == true : merge paitants , if == true: image save)
+
+        #self.feature_selectore_caller() # use feature selector for example bruta for excel files
+
+        self.classifier_caller()
 
     def classifier_caller(self):
         configs = self.get_configs(False)
         df_distance = ThesisPark.utility.get_dataframe_from_excel('output/output_distance_selected.xlsx')['Sheet1']
-        # df_velocity = FeatureSelector.utility.get_dataframe_from_excel('output/output_velocity_selected.xlsx')['Sheet1']
-        X_distance = df_distance.drop(columns=[configs.is_pd])
-        y_distance = df_distance[configs.is_pd]
-        train_data, test_data, train_labels, test_labels = ThesisPark.utility.get_test_train_from_dataframe(X_distance,
-                                                                                                            y_distance)
+        df_velocity = ThesisPark.utility.get_dataframe_from_excel('output/output_velocity_selected.xlsx')['Sheet1']
+        print("Distance classifier")
+        self.classifier_evaluator(df_distance, configs)
+        print("--------------------------------")
+        print("Velocity classifier")
+        self.classifier_evaluator(df_velocity, configs)
+
+    def classifier_evaluator(self, input_dataframe, configs):
+        input_X = input_dataframe.drop(columns=[configs.is_pd])
+        input_y = input_dataframe[configs.is_pd]
+        train_data, test_data, train_labels, test_labels = ThesisPark.utility.get_test_train_from_dataframe(input_X,
+                                                                                                            input_y)
         classifier = Classifiers()
-
-        accuracy = float('-inf')
-        i_max_accuracy = -1;
-        f1score = 0
-        precision = 0
-        recall = 0
-        for i in range(1, 100):
-            knn_model = classifier.train_knn_model(train_data, train_labels, i)
-            prediction = classifier.predict_with_knn(knn_model, test_data)
-
-            test_lb = np.floor((test_labels.values * 1000))
-            pr_lb = np.floor(prediction * 1000)
-            accuracy_i = metrics.accuracy_score(test_lb, pr_lb)
-            #f1score_i = metrics.f1_score(test_lb, pr_lb, pos_label="pos")
-            #precision_i = metrics.precision_score(test_lb, pr_lb)
-            #recall_i = metrics.recall_score(test_lb, pr_lb)
-            if accuracy < accuracy_i:
-                accuracy = accuracy_i
-                #f1score = f1score_i
-                #precision = precision_i
-                #recall = recall_i
-                i_max_accuracy = i
-
-        print(str(i_max_accuracy) + "\n")
-        print("accuracy= " + str(accuracy))
-        #print("f1score= " + str(f1score))
-        #print("precision= " + str(precision))
-        #print("recall= " + str(recall))
+        classifier.knn_classifier_init(train_data, train_labels, test_data, test_labels)
+        classifier.random_forest_classifier_init(train_data, train_labels, test_data, test_labels)
+        classifier.xg_boost_classifier_init(train_data, train_labels, test_data, test_labels)
+        classifier.svm_model_classifier_init(train_data, train_labels, test_data, test_labels)
 
     def feature_selectore_caller(self):
         feature_selector = FeatureSelector()

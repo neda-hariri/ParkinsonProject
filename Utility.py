@@ -22,4 +22,4 @@ class Utility:
         return file_list
 
     def get_test_train_from_dataframe(self,data,labels):
-        return train_test_split(data, labels, test_size=0.2, random_state=42)
+        return train_test_split(data, labels, test_size=0.25, random_state=80)
