@@ -1,7 +1,5 @@
-import os
 import json
 import pandas as pd
-import matplotlib.pyplot as plt
 from tsfresh import extract_features
 from tsfresh.utilities.dataframe_functions import impute
 from ClassifiersFlowForBrouta import ClassifiersFlowForBrouta
@@ -17,7 +15,8 @@ class ThesisPark:
 
     def starter(self):
         ## initiator (should input files merged, instead of calculation should only save graphs of input?
-        # self.initiator(True, False) #To create excel file/graphs (if == true : merge paitants , if == true: image save)
+        self.initiator(True,
+                       False)  # To create excel file/graphs (if == true : merge paitants , if == true: image save)
 
         self.PCA_and_classifiers_init()
         self.Brouta_and_classifiers_init()
@@ -103,7 +102,7 @@ class ThesisPark:
             df['id'] = df['id'].astype(str)
 
             if is_graph_saved_only:
-                self.save_graphs(df, configs, file_path)
+                ThesisPark.utility.save_graphs(df, configs, file_path)
             else:
                 imputed_features_distance, imputed_features_velocity = self.feature_extraction(df, configs)
                 dataframes_collection_distance.append(imputed_features_distance)
@@ -117,55 +116,18 @@ class ThesisPark:
         return dataframes_result_distance, dataframes_result_velocity, configs
 
     def feature_extraction(self, df, configs):
+        extracted_features_distance = extract_features(
+            df, column_id="id", column_sort=configs.timestamp, column_value="Distance", disable_progressbar=False,
+            show_warnings=False)
 
-        extracted_features_distance = extract_features(df, column_id="id", \
-                                                       column_sort=configs.timestamp, \
-                                                       column_value="Distance", \
-                                                       disable_progressbar=False, show_warnings=False)
-
-        extracted_features_velocity = extract_features(df, column_id="id", \
-                                                       column_sort=configs.timestamp, \
-                                                       column_value="Velocity", \
-                                                       disable_progressbar=False, show_warnings=False)
+        extracted_features_velocity = extract_features(
+            df, column_id="id", column_sort=configs.timestamp, column_value="Velocity", disable_progressbar=False,
+            show_warnings=False)
 
         imputed_features_distance = impute(extracted_features_distance)
         imputed_features_velocity = impute(extracted_features_velocity)
 
         return imputed_features_distance, imputed_features_velocity
-
-    def save_graphs(self, df, configs, json_file_path):
-        json_file_name = os.path.basename(json_file_path)
-
-        # Create folders if they don't exist
-        modified_uri = json_file_path.replace('\\', '/')
-        modified_uri = modified_uri.replace('.json', '')
-
-        distance_dir = os.path.join(configs.img_output_dir, modified_uri, configs.distance)
-        velocity_dir = os.path.join(configs.img_output_dir, modified_uri, configs.velocity)
-        distance_dir = distance_dir.replace('\\', '/')
-        velocity_dir = velocity_dir.replace('\\', '/')
-        os.makedirs(distance_dir, exist_ok=True)
-        os.makedirs(velocity_dir, exist_ok=True)
-
-        # Plot and save line chart for distance
-        distance_chart = plt.figure()
-        plt.plot(df[configs.timestamp], df[configs.distance])
-        plt.xlabel('Timestamp')
-        plt.ylabel('Distance')
-        plt.title('Distance vs Timestamp')
-        distance_chart_path = os.path.join(distance_dir, 'distance_chart' + json_file_name + '.png')
-        plt.savefig(distance_chart_path)
-        plt.close(distance_chart)
-
-        # Plot and save line chart for velocity
-        velocity_chart = plt.figure()
-        plt.plot(df[configs.timestamp], df[configs.velocity])
-        plt.xlabel('Timestamp')
-        plt.ylabel('Velocity')
-        plt.title('Velocity vs Timestamp')
-        velocity_chart_path = os.path.join(velocity_dir, 'velocity_chart' + json_file_name + '.png')
-        plt.savefig(velocity_chart_path)
-        plt.close(velocity_chart)
 
     def Brouta_and_classifiers_init(self):
         feature_selector = ClassifiersFlowForBrouta()
