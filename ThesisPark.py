@@ -1,18 +1,12 @@
-import math
 import os
-from sklearn.feature_selection import SelectKBest, f_regression
-from sklearn.model_selection import train_test_split
 import json
 import pandas as pd
 import matplotlib.pyplot as plt
 from tsfresh import extract_features
 from tsfresh.utilities.dataframe_functions import impute
-from Configs import Configs
-from FeatureSelector import FeatureSelector
-from Classifiers import Classifiers
+from ClassifiersFlowForBrouta import ClassifiersFlowForBrouta
+from ClassifiersPiplineForPCA import ClassifiersPiplineForPCA
 from Utility import Utility
-from sklearn import metrics
-import numpy as np
 
 
 class ThesisPark:
@@ -23,36 +17,10 @@ class ThesisPark:
 
     def starter(self):
         ## initiator (should input files merged, instead of calculation should only save graphs of input?
-        self.initiator(True, False) #To create excel file/graphs (if == true : merge paitants , if == true: image save)
+        # self.initiator(True, False) #To create excel file/graphs (if == true : merge paitants , if == true: image save)
 
-        self.feature_selector_caller() # use feature selector for example bruta for excel files
-
-        self.classifier_caller()
-
-    def classifier_caller(self):
-        configs = self.get_configs(False)
-        df_distance = ThesisPark.utility.get_dataframe_from_excel('output/output_distance_selected.xlsx')['Sheet1']
-        df_velocity = ThesisPark.utility.get_dataframe_from_excel('output/output_velocity_selected.xlsx')['Sheet1']
-        print("Distance classifier")
-        self.classifier_evaluator(df_distance, configs)
-        print("--------------------------------")
-        print("Velocity classifier")
-        self.classifier_evaluator(df_velocity, configs)
-
-    def classifier_evaluator(self, input_dataframe, configs):
-        input_X = input_dataframe.drop(columns=[configs.is_pd])
-        input_y = input_dataframe[configs.is_pd]
-        train_data, test_data, train_labels, test_labels = ThesisPark.utility.get_test_train_from_dataframe(input_X,
-                                                                                                            input_y)
-        classifier = Classifiers()
-        classifier.knn_classifier_init(train_data, train_labels, test_data, test_labels)
-        classifier.random_forest_classifier_init(train_data, train_labels, test_data, test_labels)
-        classifier.xg_boost_classifier_init(train_data, train_labels, test_data, test_labels)
-        classifier.svm_model_classifier_init(train_data, train_labels, test_data, test_labels)
-
-    def feature_selector_caller(self):
-        feature_selector = FeatureSelector()
-        feature_selector.feature_selector_caller(self.get_configs(False))
+        self.PCA_and_classifiers_init()
+        self.Brouta_and_classifiers_init()
 
     def initiator(self, should_output_merged, is_graph_saved_only):
         if is_graph_saved_only:
@@ -91,31 +59,10 @@ class ThesisPark:
                 dataframes_result_distance_h.to_excel('output_distance' + configs_h.output_extension + '.xlsx')
                 dataframes_result_velocity_h.to_excel('output_velocity' + configs_h.output_extension + '.xlsx')
 
-    def get_configs(self, is_pd):
-        if is_pd:
-            file_paths = ThesisPark.utility.get_files_in_directory("json/PD/")
-            jointPositionTags = 'joint_positions'
-            output_extension = '_parkinson'
-        else:
-            file_paths = ThesisPark.utility.get_files_in_directory("json/HEALTHY/")
-            jointPositionTags = 'joints_position'
-            output_extension = '_healthy'
-
-        frames = 'frames'
-        hands = 'hands'
-        timestamp_usec = 'timestamp_usec'
-        timestamp = 'timestamp'
-        distance = 'Distance'
-        velocity = 'Velocity'
-        img_output_dir = 'Imgs'
-        is_pd = "is_pd"
-        return Configs(file_paths, jointPositionTags, frames, hands, timestamp_usec, timestamp, distance, velocity,
-                       output_extension, img_output_dir, is_pd)
-
     def data_extraction_calculation(self, is_input_pd, is_graph_saved_only):
         dataframes_collection_distance = []
         dataframes_collection_velocity = []
-        configs = self.get_configs(is_input_pd)
+        configs = ThesisPark.utility.get_configs(is_input_pd)
 
         for file_path in configs.file_paths:
             with open(file_path) as file:
@@ -220,3 +167,10 @@ class ThesisPark:
         plt.savefig(velocity_chart_path)
         plt.close(velocity_chart)
 
+    def Brouta_and_classifiers_init(self):
+        feature_selector = ClassifiersFlowForBrouta()
+        feature_selector.Brouta_feature_selector_caller(ThesisPark.utility.get_configs(False))
+
+    def PCA_and_classifiers_init(self):
+        cpp = ClassifiersPiplineForPCA()
+        cpp.PCA_pipeline_with_classifires(ThesisPark.utility.get_configs(False))
