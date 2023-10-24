@@ -15,8 +15,8 @@ class ThesisPark:
 
     def starter(self):
         ## initiator (should input files merged, instead of calculation should only save graphs of input?
-        self.initiator(True,
-                       False)  # To create excel file/graphs (if == true : merge paitants , if == true: image save)
+        #self.initiator(True,
+        #               False)  # To create excel file/graphs (if == true : merge paitants , if == true: image save)
 
         self.PCA_and_classifiers_init()
         self.Brouta_and_classifiers_init()

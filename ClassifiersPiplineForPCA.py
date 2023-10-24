@@ -1,22 +1,11 @@
-import ThesisPark
 from Utility import Utility
 from sklearn.decomposition import PCA
-from boruta import BorutaPy
-import numpy as np
 from sklearn.impute import SimpleImputer
-from sklearn.ensemble import RandomForestClassifier
 import pandas as pd
 import matplotlib.pyplot as plt
-import sklearn.neighbors
 from sklearn.pipeline import Pipeline
-from sklearn.model_selection import cross_val_score
-from sklearn.neighbors import KNeighborsRegressor
 import xgboost as xgb
 import numpy as np
-from sklearn.metrics import accuracy_score
-from sklearn.metrics import f1_score
-from sklearn.metrics import precision_score
-from sklearn.metrics import recall_score
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.svm import SVC
 from sklearn.preprocessing import StandardScaler
@@ -91,20 +80,22 @@ class ClassifiersPiplineForPCA:
         pca_xgb_pipeline.fit(train_data, train_labels)
         pca_knn_pipeline.fit(train_data, train_labels)
 
-        scoring_type = 'accuracy'
+        scoring_types = ['accuracy', 'f1', 'precision', 'recall']
         number_of_cv_splits = 5
-        print('PCA svc pipeline results using ' + scoring_type + ' for scoring')
-        print(cross_val_score(pca_svm_pipeline, test_data, test_labels, cv=number_of_cv_splits,
-                              scoring=scoring_type))
-        print('PCA Random Forest Classifier pipeline results using ' + scoring_type + ' for scoring')
-        print(cross_val_score(pca_rf_pipeline, test_data, test_labels, cv=number_of_cv_splits,
-                              scoring=scoring_type))
-        print('PCA XGBClassifier pipeline results using ' + scoring_type + ' for scoring')
-        print(cross_val_score(pca_xgb_pipeline, test_data, test_labels, cv=number_of_cv_splits,
-                              scoring=scoring_type))
-        print('PCA KNN pipeline results using ' + scoring_type + ' for scoring')
-        print(cross_val_score(pca_knn_pipeline, test_data, test_labels, cv=number_of_cv_splits,
-                              scoring=scoring_type))
+        for scoring_type in scoring_types:
+            print('PCA "svc" pipeline results using "' + scoring_type + '" for scoring')
+            print(np.average(cross_val_score(pca_svm_pipeline, test_data, test_labels, cv=number_of_cv_splits,
+                                  scoring=scoring_type)))
+            print('\nPCA "Random Forest" Classifier pipeline results using "' + scoring_type + '" for scoring')
+            print(np.average(cross_val_score(pca_rf_pipeline, test_data, test_labels, cv=number_of_cv_splits,
+                                  scoring=scoring_type)))
+            print('\nPCA "XGBClassifier" pipeline results using "' + scoring_type + '" for scoring')
+            print(np.average(cross_val_score(pca_xgb_pipeline, test_data, test_labels, cv=number_of_cv_splits,
+                                  scoring=scoring_type)))
+            print('\nPCA "KNN" pipeline results using "' + scoring_type + '" for scoring')
+            print(np.average(cross_val_score(pca_knn_pipeline, test_data, test_labels, cv=number_of_cv_splits,
+                                  scoring=scoring_type)))
+            print('*************************************************************')
 
         return None
 
@@ -132,6 +123,7 @@ class ClassifiersPiplineForPCA:
 
         plt.figure(figsize=(8, 6))
         plt.plot(x, first_derivative, label='First Derivative')
+        # Calculate inter-quartile Range
         Q1 = np.percentile(first_derivative, 25)
         Q3 = np.percentile(first_derivative, 75)
         IQR = Q3 - Q1
