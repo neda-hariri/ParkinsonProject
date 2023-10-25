@@ -28,7 +28,7 @@ class Utility:
     def get_test_train_from_dataframe(self, data, labels):
         return train_test_split(data, labels, test_size=0.25, random_state=80)
 
-    def get_configs(self, is_pd):
+    def get_configs(self, is_pd=False):
         if is_pd:
             file_paths = self.get_files_in_directory("json/PD/")
             jointPositionTags = 'joint_positions'

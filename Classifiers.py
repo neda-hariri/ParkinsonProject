@@ -38,12 +38,7 @@ class Classifiers:
     def predict_with_xg_boost(self, trained_model, x_test, y_test):
         # Make predictions on the test set
         y_pred = trained_model.predict(x_test)
-
         accuracy, f1score, precision, recall = self.get_metrics(y_test, y_pred)
-        print("XG_Boost Accuracy:", accuracy)
-        print("XG_Boost F1score:", f1score)
-        print("XG_Boost Precision:", precision)
-        print("XG_Boost Recall:", recall)
 
     def train_random_forest_model(self, x_train, y_train):
         # Create Random Forest model
@@ -57,10 +52,6 @@ class Classifiers:
         y_pred_rf = trained_model.predict(x_test)
 
         accuracy, f1score, precision, recall = self.get_metrics(y_test, y_pred_rf)
-        print("Random Forest Accuracy:", accuracy)
-        print("Random Forest F1score:", f1score)
-        print("Random Forest Precision:", precision)
-        print("Random Forest Recall:", recall)
 
     def train_svm_model(self, x_train, y_train):
         # Scale the data for SVM
@@ -77,10 +68,7 @@ class Classifiers:
         y_pred_svm = trained_model.predict(x_test_scaled)
 
         accuracy, f1score, precision, recall = self.get_metrics(y_test, y_pred_svm)
-        print("SVM Accuracy:", accuracy)
-        print("SVM F1score:", f1score)
-        print("SVM Precision:", precision)
-        print("SVM Recall:", recall)
+
 
     def get_metrics(self, y_test, predicted_y_test):
         accuracy = accuracy_score(y_test, predicted_y_test)
@@ -89,17 +77,11 @@ class Classifiers:
         recall = recall_score(y_test, predicted_y_test, average='macro', zero_division=0.0)
         return accuracy, f1score, precision, recall
 
-    def get_metrics_with_cross_validation(self, model, X_values, y_values, model_name):
-        # print("CrossValidation for " + model_name +" with accuracy: ")
-        return cross_val_score(model, X_values, y_values, cv=3, scoring='accuracy')
+    def get_metrics_with_cross_validation(self, model, X_values, y_values, scoring_type):
+        return cross_val_score(model, X_values, y_values, cv=3, scoring=scoring_type)
 
-    def knn_classifier_init(self, train_data, train_labels, test_data, test_labels):
-        print("******************* Starting KNN Classifier ********************")
+    def knn_classifier_init(self, train_data, train_labels, test_data, test_labels,scoring_type):
         accuracy = float('-inf')
-        k_max_accuracy = -1;
-        f1score = 0
-        precision = 0
-        recall = 0
         selected_model = None
         for k in range(1, 20):
             knn_model = self.train_knn_model(train_data, train_labels, k)
@@ -108,38 +90,22 @@ class Classifiers:
             test_lb = np.floor((test_labels.values * 1000))
             pr_lb = np.floor(prediction * 1000)
             accuracy_k = accuracy_score(test_lb, pr_lb)
-            f1score_k = f1_score(test_lb, pr_lb, average='macro', zero_division=0.0)
-            precision_k = precision_score(test_lb, pr_lb, average='macro', zero_division=0.0)
-            recall_k = recall_score(test_lb, pr_lb, average='macro', zero_division=0.0)
             if accuracy < accuracy_k:
-                accuracy = accuracy_k
-                f1score = f1score_k
-                precision = precision_k
-                recall = recall_k
-                k_max_accuracy = k
                 selected_model = knn_model
 
-        print("KNN K: " + str(k_max_accuracy))
-        print("KNN Accuracy: " + str(accuracy))
-        print("KNN F1score: " + str(f1score))
-        print("KNN Precision: " + str(precision))
-        print("KNN Recall: " + str(recall))
-        return self.get_metrics_with_cross_validation(selected_model, test_data, test_labels, 'KNN')
+        return self.get_metrics_with_cross_validation(selected_model, test_data, test_labels, scoring_type)
 
-    def xg_boost_classifier_init(self, train_data, train_labels, test_data, test_labels):
-        print("******************* Starting XGBoost Classifier ********************")
+    def xg_boost_classifier_init(self, train_data, train_labels, test_data, test_labels,scoring_type):
         xg_boost_model = self.train_xg_boost_model(train_data, train_labels)
         self.predict_with_xg_boost(xg_boost_model, test_data, test_labels)
-        return self.get_metrics_with_cross_validation(xg_boost_model, test_data, test_labels, 'xg boost')
+        return self.get_metrics_with_cross_validation(xg_boost_model, test_data, test_labels, scoring_type)
 
-    def svm_model_classifier_init(self, train_data, train_labels, test_data, test_labels):
-        print("******************* Starting SVM Classifier ********************")
+    def svm_model_classifier_init(self, train_data, train_labels, test_data, test_labels,scoring_type):
         svm_model, scaler = self.train_svm_model(train_data, train_labels)
         self.predict_with_svm(svm_model, scaler, test_data, test_labels)
-        return self.get_metrics_with_cross_validation(svm_model, test_data, test_labels, 'SVM')
+        return self.get_metrics_with_cross_validation(svm_model, test_data, test_labels, scoring_type)
 
-    def random_forest_classifier_init(self, train_data, train_labels, test_data, test_labels):
-        print("******************* Starting Random Forest Classifier ********************")
+    def random_forest_classifier_init(self, train_data, train_labels, test_data, test_labels,scoring_type):
         random_forest_model = self.train_random_forest_model(train_data, train_labels)
         self.predict_with_random_forest(random_forest_model, test_data, test_labels)
-        return self.get_metrics_with_cross_validation(random_forest_model, test_data, test_labels, 'Random Forest')
+        return self.get_metrics_with_cross_validation(random_forest_model, test_data, test_labels, scoring_type)

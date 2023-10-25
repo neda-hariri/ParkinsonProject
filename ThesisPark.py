@@ -14,9 +14,8 @@ class ThesisPark:
         ThesisPark.utility = Utility()
 
     def starter(self):
-        ## initiator (should input files merged, instead of calculation should only save graphs of input?
-        #self.initiator(True,
-        #               False)  # To create excel file/graphs (if == true : merge paitants , if == true: image save)
+        self.initiator(True,
+                       False)  # To create excel file/graphs (if == true : merge patients , if == true: image save)
 
         self.PCA_and_classifiers_init()
         self.Brouta_and_classifiers_init()
@@ -131,8 +130,8 @@ class ThesisPark:
 
     def Brouta_and_classifiers_init(self):
         feature_selector = ClassifiersFlowForBrouta()
-        feature_selector.Brouta_feature_selector_caller(ThesisPark.utility.get_configs(False))
+        feature_selector.Brouta_feature_selector_caller(ThesisPark.utility.get_configs())
 
     def PCA_and_classifiers_init(self):
         cpp = ClassifiersPiplineForPCA()
-        cpp.PCA_pipeline_with_classifires(ThesisPark.utility.get_configs(False))
+        cpp.PCA_pipeline_with_classifires(ThesisPark.utility.get_configs())
