@@ -4,7 +4,7 @@ import pandas as pd
 from Configs import Configs
 from sklearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
-
+import numpy as np
 
 class Utility:
     def get_dataframe_from_excel(self, uri):
@@ -82,3 +82,31 @@ class Utility:
         velocity_chart_path = os.path.join(velocity_dir, 'velocity_chart' + json_file_name + '.png')
         plt.savefig(velocity_chart_path)
         plt.close(velocity_chart)
+
+    def create_feature_scattered_graph(self, df, column_indices, plot_title):
+        # Extract other columns as the values for the other axis
+        selected_data = df.iloc[:, column_indices]
+
+        # Create a scatter plot for the selected columns
+        # Define colors for each column dynamically
+        num_columns = len(column_indices)
+        colors = plt.cm.viridis(np.linspace(0, 1, num_columns))  # Use a colormap to generate colors
+
+        # Create a 3D scatter plot with different colors for each column
+        fig = plt.figure(figsize=(10, 6))
+        ax = fig.add_subplot(111, projection='3d')
+
+        for i, column_index in enumerate(column_indices):
+            x = selected_data.iloc[:, 0]
+            y = selected_data.iloc[:, 1]
+            z = selected_data.iloc[:, 2]
+
+            ax.scatter(x, y, z, c=[colors[i]], label=f'Column {column_index}')
+
+        ax.set_xlabel(df.columns[column_indices[0]])
+        ax.set_ylabel(df.columns[column_indices[1]])
+        ax.set_zlabel(df.columns[column_indices[2]])
+        ax.set_title("3D Scatter Plot with Different Colors for Selected Columns")
+        ax.legend()
+        plt.title(plot_title)
+        plt.show()

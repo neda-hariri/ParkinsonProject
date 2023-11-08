@@ -2,7 +2,6 @@ from Utility import Utility
 from sklearn.decomposition import PCA
 from sklearn.impute import SimpleImputer
 import pandas as pd
-import matplotlib.pyplot as plt
 from sklearn.pipeline import Pipeline
 import xgboost as xgb
 import numpy as np
@@ -11,7 +10,8 @@ from sklearn.svm import SVC
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import cross_val_score, KFold
 from sklearn.neighbors import KNeighborsClassifier
-
+import matplotlib.pyplot as plt
+import statistics
 
 class ClassifiersPiplineForPCA:
     utility = None
@@ -25,6 +25,7 @@ class ClassifiersPiplineForPCA:
 
         df_distance = df_distance.iloc[:, 1:]
         df_velocity = df_velocity.iloc[:, 1:]
+
 
         train_data_distance, test_data_distance, train_labels_distance, test_labels_distance = ClassifiersPiplineForPCA.utility.get_test_train_from_dataframe(
             df_distance,
@@ -41,7 +42,7 @@ class ClassifiersPiplineForPCA:
 
     def PCA_selector_caller(self, test_data, test_labels, train_data, train_labels, Evaluation_label):
         print("***************** Starting PCA for " + Evaluation_label + " *****************")
-        PCA_threshold = self.draw_chart_and_get_threshold_for_PCA(train_data)
+        PCA_threshold = self.draw_chart_and_get_threshold_for_PCA(train_data,Evaluation_label)
 
         # Initialize the PCA model
         pca = PCA(PCA_threshold)
@@ -83,23 +84,39 @@ class ClassifiersPiplineForPCA:
         scoring_types = ['accuracy', 'f1', 'precision', 'recall']
         number_of_cv_splits = 5
         for scoring_type in scoring_types:
-            print('PCA "svc" pipeline results using "' + scoring_type + '" for scoring')
+            print('PCA "svc" pipeline mean results using "' + scoring_type + '" for scoring')
             print(np.average(cross_val_score(pca_svm_pipeline, test_data, test_labels, cv=number_of_cv_splits,
                                   scoring=scoring_type)))
-            print('\nPCA "Random Forest" Classifier pipeline results using "' + scoring_type + '" for scoring')
+            print('\nPCA "Random Forest" mean Classifier pipeline results using "' + scoring_type + '" for scoring')
             print(np.average(cross_val_score(pca_rf_pipeline, test_data, test_labels, cv=number_of_cv_splits,
                                   scoring=scoring_type)))
-            print('\nPCA "XGBClassifier" pipeline results using "' + scoring_type + '" for scoring')
+            print('\nPCA "XGBClassifier" mean pipeline results using "' + scoring_type + '" for scoring')
             print(np.average(cross_val_score(pca_xgb_pipeline, test_data, test_labels, cv=number_of_cv_splits,
                                   scoring=scoring_type)))
-            print('\nPCA "KNN" pipeline results using "' + scoring_type + '" for scoring')
+            print('\nPCA "KNN" mean pipeline results using "' + scoring_type + '" for scoring')
             print(np.average(cross_val_score(pca_knn_pipeline, test_data, test_labels, cv=number_of_cv_splits,
                                   scoring=scoring_type)))
             print('*************************************************************')
 
+            print('PCA "svc" pipeline variance results using "' + scoring_type + '" for scoring')
+            print(statistics.variance(cross_val_score(pca_svm_pipeline, test_data, test_labels, cv=number_of_cv_splits,
+                                                      scoring=scoring_type)))
+            print('\nPCA "Random Forest" variance Classifier pipeline results using "' + scoring_type + '" for scoring')
+            print(statistics.variance(cross_val_score(pca_rf_pipeline, test_data, test_labels, cv=number_of_cv_splits,
+                                  scoring=scoring_type)))
+
+            print('\nPCA "XGBClassifier" variance pipeline results using "' + scoring_type + '" for scoring')
+            print(statistics.variance(cross_val_score(pca_xgb_pipeline, test_data, test_labels, cv=number_of_cv_splits,
+                                  scoring=scoring_type)))
+            print('\nPCA "KNN" pipeline variance results using "' + scoring_type + '" for scoring')
+            print(statistics.variance(cross_val_score(pca_knn_pipeline, test_data, test_labels, cv=number_of_cv_splits,
+                                  scoring=scoring_type)))
+
+            print('*************************************************************')
+
         return None
 
-    def draw_chart_and_get_threshold_for_PCA(self, dataframe):
+    def draw_chart_and_get_threshold_for_PCA(self, dataframe,Evaluation_label):
         # Standardize the data (optional but usually recommended for PCA)
         standardized_data = (dataframe - dataframe.mean()) / dataframe.std()
         standardized_data = standardized_data.dropna(axis=1)
@@ -121,6 +138,8 @@ class ClassifiersPiplineForPCA:
         x = range(0, explained_variance_ratio_cumsum.shape[0])
         first_derivative = np.gradient(pca.explained_variance_ratio_, x)
 
+        ClassifiersPiplineForPCA.utility.create_feature_scattered_graph(pd.DataFrame(pca.components_),
+                                                                        [1, 2, 3],"PCA first three component in "+Evaluation_label)
         plt.figure(figsize=(8, 6))
         plt.plot(x, first_derivative, label='First Derivative')
         # Calculate inter-quartile Range

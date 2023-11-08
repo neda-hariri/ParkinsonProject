@@ -14,8 +14,8 @@ class ThesisPark:
         ThesisPark.utility = Utility()
 
     def starter(self):
-        self.initiator(True,
-                       False)  # To create excel file/graphs (if == true : merge patients , if == true: image save)
+        #self.initiator(True,
+         #              False)  # To create excel file/graphs (if == true : merge patients , if == true: image save)
 
         self.PCA_and_classifiers_init()
         self.Brouta_and_classifiers_init()

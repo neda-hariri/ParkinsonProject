@@ -125,6 +125,9 @@ class ClassifiersFlowForBrouta:
                                                                                                    configs.is_pd)
         print("Number of useful features to keep distance with Boruta: ", selected_features_number_for_distance)
         Train_data_distance_selected_features = train_data_distance[boruta_result]
+        ClassifiersFlowForBrouta.utility.create_feature_scattered_graph(Train_data_distance_selected_features,
+                                                                        [1, 2, 3],
+                                                                        "Train data distance selected features")
         Train_data_distance_selected_features.to_excel('output/output_distance_selected_train_data.xlsx')
         Test_data_distance_selected_features = test_data_distance[boruta_result]
         Test_data_distance_selected_features.to_excel('output/output_distance_selected_test_data.xlsx')
@@ -137,6 +140,9 @@ class ClassifiersFlowForBrouta:
             configs.is_pd)
         print("Number of useful features to keep for velocity with Boruta: ", selected_features_number_for_velocity)
         Train_data_velocity_selected_features = train_data_velocity[boruta_result_velocity]
+        ClassifiersFlowForBrouta.utility.create_feature_scattered_graph(Train_data_velocity_selected_features,
+                                                                        [1, 2, 3],
+                                                                        "Train data velocity selected features")
         Train_data_velocity_selected_features.to_excel('output/output_velocity_selected_train_data.xlsx')
         Test_data_velocity_selected_features = test_data_velocity[boruta_result_velocity]
         Test_data_velocity_selected_features.to_excel('output/output_velocity_selected_test_data.xlsx')
