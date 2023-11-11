@@ -15,30 +15,22 @@ from sklearn.neighbors import KNeighborsClassifier
 
 class Classifiers:
     def train_knn_model(self, train_data, train_labels, k):
-        # Instantiate KNN model
         knn = KNeighborsClassifier(n_neighbors=k)
-        # Fit the model with training data
         knn.fit(train_data, train_labels)
-        # Return the trained model
         return knn
 
-    def predict_with_knn(self, trained_model, new_data):
-        # Use the trained model to find nearest neighbors and predict
-        predictions = trained_model.predict(new_data)
-        # Return the predictions
-        return predictions
+    def predict_with_knn(self, trained_model, x_test, y_test,scoring_type):
+        predictions = trained_model.predict(x_test)
+        return self.get_metrics(y_test, predictions,scoring_type)
 
     def train_xg_boost_model(self, x_train, y_train):
-        # Create XGBoost model
         xgb_model = xgb.XGBClassifier()
-        # Train the model
         xgb_model.fit(x_train, y_train)
         return xgb_model
 
-    def predict_with_xg_boost(self, trained_model, x_test, y_test):
-        # Make predictions on the test set
+    def predict_with_xg_boost(self, trained_model, x_test, y_test,scoring_type):
         y_pred = trained_model.predict(x_test)
-        accuracy, f1score, precision, recall = self.get_metrics(y_test, y_pred)
+        return self.get_metrics(y_test, y_pred,scoring_type)
 
     def train_random_forest_model(self, x_train, y_train):
         # Create Random Forest model
@@ -47,11 +39,11 @@ class Classifiers:
         rf_model.fit(x_train, y_train)
         return rf_model
 
-    def predict_with_random_forest(self, trained_model, x_test, y_test):
+    def predict_with_random_forest(self, trained_model, x_test, y_test,scoring_type):
         # Make predictions on the test set
         y_pred_rf = trained_model.predict(x_test)
 
-        accuracy, f1score, precision, recall = self.get_metrics(y_test, y_pred_rf)
+        return self.get_metrics(y_test, y_pred_rf,scoring_type)
 
     def train_svm_model(self, x_train, y_train):
         # Scale the data for SVM
@@ -63,49 +55,48 @@ class Classifiers:
         svm_model.fit(X_train_scaled, y_train)
         return svm_model, scaler
 
-    def predict_with_svm(self, trained_model, scaler, x_test, y_test):
+    def predict_with_svm(self, trained_model, scaler, x_test, y_test,scoring_type):
         x_test_scaled = scaler.transform(x_test)
         y_pred_svm = trained_model.predict(x_test_scaled)
+        return  self.get_metrics(y_test, y_pred_svm,scoring_type)
 
-        accuracy, f1score, precision, recall = self.get_metrics(y_test, y_pred_svm)
 
+    def get_metrics(self, y_test, predicted_y_test,scoring_type):
+        if scoring_type == 'accuracy':
+            accuracy = accuracy_score(y_test, predicted_y_test)
+            return accuracy
+        elif scoring_type == 'f1':
+            f1score = f1_score(y_test, predicted_y_test, average='macro', zero_division=0.0)
+            return f1score
 
-    def get_metrics(self, y_test, predicted_y_test):
-        accuracy = accuracy_score(y_test, predicted_y_test)
-        f1score = f1_score(y_test, predicted_y_test, average='macro', zero_division=0.0)
-        precision = precision_score(y_test, predicted_y_test, average='macro', zero_division=0.0)
-        recall = recall_score(y_test, predicted_y_test, average='macro', zero_division=0.0)
-        return accuracy, f1score, precision, recall
+        elif scoring_type == 'precision':
+            precision = precision_score(y_test, predicted_y_test, average='macro', zero_division=0.0)
+            return precision
 
-    def get_metrics_with_cross_validation(self, model, X_values, y_values, scoring_type):
-        return cross_val_score(model, X_values, y_values, cv=3, scoring=scoring_type)
+        elif scoring_type == 'recall':
+            recall = recall_score(y_test, predicted_y_test, average='macro', zero_division=0.0)
+            return recall
+        else:
+            print("Metric is not defined")
 
     def knn_classifier_init(self, train_data, train_labels, test_data, test_labels,scoring_type):
-        accuracy = float('-inf')
-        selected_model = None
+        prediction = float('-inf')
         for k in range(1, 20):
             knn_model = self.train_knn_model(train_data, train_labels, k)
-            prediction = self.predict_with_knn(knn_model, test_data)
+            prediction_score = self.predict_with_knn(knn_model, test_data,test_labels,scoring_type)
 
-            test_lb = np.floor((test_labels.values * 1000))
-            pr_lb = np.floor(prediction * 1000)
-            accuracy_k = accuracy_score(test_lb, pr_lb)
-            if accuracy < accuracy_k:
-                selected_model = knn_model
-
-        return self.get_metrics_with_cross_validation(selected_model, test_data, test_labels, scoring_type)
-
+            if prediction < prediction_score:
+                prediction = prediction_score
+        return prediction
     def xg_boost_classifier_init(self, train_data, train_labels, test_data, test_labels,scoring_type):
         xg_boost_model = self.train_xg_boost_model(train_data, train_labels)
-        self.predict_with_xg_boost(xg_boost_model, test_data, test_labels)
-        return self.get_metrics_with_cross_validation(xg_boost_model, test_data, test_labels, scoring_type)
+        return self.predict_with_xg_boost(xg_boost_model, test_data, test_labels,scoring_type)
 
     def svm_model_classifier_init(self, train_data, train_labels, test_data, test_labels,scoring_type):
         svm_model, scaler = self.train_svm_model(train_data, train_labels)
-        self.predict_with_svm(svm_model, scaler, test_data, test_labels)
-        return self.get_metrics_with_cross_validation(svm_model, test_data, test_labels, scoring_type)
+        return self.predict_with_svm(svm_model, scaler, test_data, test_labels,scoring_type)
 
     def random_forest_classifier_init(self, train_data, train_labels, test_data, test_labels,scoring_type):
         random_forest_model = self.train_random_forest_model(train_data, train_labels)
-        self.predict_with_random_forest(random_forest_model, test_data, test_labels)
-        return self.get_metrics_with_cross_validation(random_forest_model, test_data, test_labels, scoring_type)
+        return self.predict_with_random_forest(random_forest_model, test_data, test_labels,scoring_type)
+

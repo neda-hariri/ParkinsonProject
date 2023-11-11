@@ -84,33 +84,49 @@ class ClassifiersPiplineForPCA:
         scoring_types = ['accuracy', 'f1', 'precision', 'recall']
         number_of_cv_splits = 5
         for scoring_type in scoring_types:
+            pca_svm_pipeline_result = cross_val_score(pca_svm_pipeline, test_data, test_labels, cv=number_of_cv_splits,
+                            scoring=scoring_type)
+            pca_rf_pipeline_result = cross_val_score(pca_rf_pipeline, test_data, test_labels, cv=number_of_cv_splits,
+                                  scoring=scoring_type)
+
+            pca_xgb_pipeline_result = cross_val_score(pca_xgb_pipeline, test_data, test_labels, cv=number_of_cv_splits,
+                            scoring=scoring_type)
+
+            pca_knn_pipeline_result = cross_val_score(pca_knn_pipeline, test_data, test_labels, cv=number_of_cv_splits,
+                                  scoring=scoring_type)
+            print("knn classifier scores of " + scoring_type)
+            print(pca_knn_pipeline_result)
+            print("random_forest classifier scores of " + scoring_type)
+            print(pca_rf_pipeline_result)
+            print("xg_boost classifier scores of " + scoring_type)
+            print(pca_xgb_pipeline_result)
+            print("svm classifier scores of " + scoring_type)
+            print(pca_svm_pipeline_result)
+            print("------------------------------------------")
+
+
+
+
+
             print('PCA "svc" pipeline mean results using "' + scoring_type + '" for scoring')
-            print(np.average(cross_val_score(pca_svm_pipeline, test_data, test_labels, cv=number_of_cv_splits,
-                                  scoring=scoring_type)))
+            print(np.average(pca_svm_pipeline_result))
             print('\nPCA "Random Forest" mean Classifier pipeline results using "' + scoring_type + '" for scoring')
-            print(np.average(cross_val_score(pca_rf_pipeline, test_data, test_labels, cv=number_of_cv_splits,
-                                  scoring=scoring_type)))
+            print(np.average(pca_rf_pipeline_result))
             print('\nPCA "XGBClassifier" mean pipeline results using "' + scoring_type + '" for scoring')
-            print(np.average(cross_val_score(pca_xgb_pipeline, test_data, test_labels, cv=number_of_cv_splits,
-                                  scoring=scoring_type)))
+            print(np.average(pca_xgb_pipeline_result))
             print('\nPCA "KNN" mean pipeline results using "' + scoring_type + '" for scoring')
-            print(np.average(cross_val_score(pca_knn_pipeline, test_data, test_labels, cv=number_of_cv_splits,
-                                  scoring=scoring_type)))
+            print(np.average(pca_knn_pipeline_result))
             print('*************************************************************')
 
-            print('PCA "svc" pipeline variance results using "' + scoring_type + '" for scoring')
-            print(statistics.variance(cross_val_score(pca_svm_pipeline, test_data, test_labels, cv=number_of_cv_splits,
-                                                      scoring=scoring_type)))
-            print('\nPCA "Random Forest" variance Classifier pipeline results using "' + scoring_type + '" for scoring')
-            print(statistics.variance(cross_val_score(pca_rf_pipeline, test_data, test_labels, cv=number_of_cv_splits,
-                                  scoring=scoring_type)))
+            print('PCA "svc" pipeline standard deviation results using "' + scoring_type + '" for scoring')
+            print(np.std(pca_svm_pipeline_result))
+            print('\nPCA "Random Forest" standard deviation Classifier pipeline results using "' + scoring_type + '" for scoring')
+            print(np.std(pca_rf_pipeline_result))
 
-            print('\nPCA "XGBClassifier" variance pipeline results using "' + scoring_type + '" for scoring')
-            print(statistics.variance(cross_val_score(pca_xgb_pipeline, test_data, test_labels, cv=number_of_cv_splits,
-                                  scoring=scoring_type)))
-            print('\nPCA "KNN" pipeline variance results using "' + scoring_type + '" for scoring')
-            print(statistics.variance(cross_val_score(pca_knn_pipeline, test_data, test_labels, cv=number_of_cv_splits,
-                                  scoring=scoring_type)))
+            print('\nPCA "XGBClassifier" standard deviation pipeline results using "' + scoring_type + '" for scoring')
+            print(np.std(pca_xgb_pipeline_result))
+            print('\nPCA "KNN" pipeline standard deviation results using "' + scoring_type + '" for scoring')
+            print(np.std(pca_knn_pipeline_result))
 
             print('*************************************************************')
 

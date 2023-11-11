@@ -5,6 +5,7 @@ from Configs import Configs
 from sklearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
 import numpy as np
+from mycolorpy import colorlist as mcp
 
 class Utility:
     def get_dataframe_from_excel(self, uri):
@@ -90,7 +91,7 @@ class Utility:
         # Create a scatter plot for the selected columns
         # Define colors for each column dynamically
         num_columns = len(column_indices)
-        colors = plt.cm.viridis(np.linspace(0, 1, num_columns))  # Use a colormap to generate colors
+        colors = mcp.gen_color(cmap="bwr", n=num_columns*10)
 
         # Create a 3D scatter plot with different colors for each column
         fig = plt.figure(figsize=(10, 6))
@@ -101,7 +102,7 @@ class Utility:
             y = selected_data.iloc[:, 1]
             z = selected_data.iloc[:, 2]
 
-            ax.scatter(x, y, z, c=[colors[i]], label=f'Column {column_index}')
+            ax.scatter(x, y, z, c=[colors[i*10]], label=f'Column {column_index}')
 
         ax.set_xlabel(df.columns[column_indices[0]])
         ax.set_ylabel(df.columns[column_indices[1]])
