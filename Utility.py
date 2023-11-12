@@ -45,10 +45,11 @@ class Utility:
         timestamp = 'timestamp'
         distance = 'Distance'
         velocity = 'Velocity'
+        Combined = 'Combined'
         img_output_dir = 'Imgs'
         is_pd = "is_pd"
         return Configs(file_paths, jointPositionTags, frames, hands, timestamp_usec, timestamp, distance, velocity,
-                       output_extension, img_output_dir, is_pd)
+                       Combined,output_extension, img_output_dir, is_pd)
 
     def save_graphs(self, df, configs, json_file_path):
         json_file_name = os.path.basename(json_file_path)

@@ -2,7 +2,7 @@ import json
 import pandas as pd
 from tsfresh import extract_features
 from tsfresh.utilities.dataframe_functions import impute
-from ClassifiersFlowForBrouta import ClassifiersFlowForBrouta
+from ClassifiersFlowForBoruta import ClassifiersFlowForBoruta
 from ClassifiersPiplineForPCA import ClassifiersPiplineForPCA
 from Utility import Utility
 
@@ -18,7 +18,7 @@ class ThesisPark:
          #              False)  # To create excel file/graphs (if == true : merge patients , if == true: image save)
 
         self.PCA_and_classifiers_init()
-        self.Brouta_and_classifiers_init()
+        self.Boruta_and_classifiers_init()
 
     def initiator(self, should_output_merged, is_graph_saved_only):
         if is_graph_saved_only:
@@ -128,9 +128,9 @@ class ThesisPark:
 
         return imputed_features_distance, imputed_features_velocity
 
-    def Brouta_and_classifiers_init(self):
-        feature_selector = ClassifiersFlowForBrouta()
-        feature_selector.Brouta_feature_selector_caller(ThesisPark.utility.get_configs())
+    def Boruta_and_classifiers_init(self):
+        feature_selector = ClassifiersFlowForBoruta()
+        feature_selector.Boruta_feature_selector_caller(ThesisPark.utility.get_configs())
 
     def PCA_and_classifiers_init(self):
         cpp = ClassifiersPiplineForPCA()

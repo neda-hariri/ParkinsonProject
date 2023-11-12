@@ -11,7 +11,6 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import cross_val_score, KFold
 from sklearn.neighbors import KNeighborsClassifier
 import matplotlib.pyplot as plt
-import statistics
 
 class ClassifiersPiplineForPCA:
     utility = None
@@ -26,13 +25,22 @@ class ClassifiersPiplineForPCA:
         df_distance = df_distance.iloc[:, 1:]
         df_velocity = df_velocity.iloc[:, 1:]
 
+        df_combined_velocity_distance = pd.concat([df_distance, df_velocity], axis=1)
+        df_combined_velocity_distance = df_combined_velocity_distance.iloc[:, 1:]
+        # Remove one of the columns with the same name (e.g., remove the first occurrence)
+        df_combined_velocity_distance = df_combined_velocity_distance.loc[:, ~df_combined_velocity_distance.columns.duplicated()]
 
         train_data_distance, test_data_distance, train_labels_distance, test_labels_distance = ClassifiersPiplineForPCA.utility.get_test_train_from_dataframe(
             df_distance,
             df_distance[configs.is_pd])
+
         train_data_velocity, test_data_velocity, train_labels_velocity, test_labels_velocity = ClassifiersPiplineForPCA.utility.get_test_train_from_dataframe(
             df_velocity,
             df_velocity[configs.is_pd])
+
+        train_data_combined, test_data_combined, train_labels_combined, test_labels_combined = \
+            ClassifiersPiplineForPCA.utility.get_test_train_from_dataframe(
+                df_combined_velocity_distance, df_combined_velocity_distance[configs.is_pd])
 
         self.PCA_selector_caller(test_data_distance, test_labels_distance,
                                  train_data_distance, train_labels_distance, configs.distance)
@@ -40,6 +48,8 @@ class ClassifiersPiplineForPCA:
         self.PCA_selector_caller(test_data_velocity, test_labels_velocity, train_data_velocity,
                                  train_labels_velocity, configs.velocity)
 
+        self.PCA_selector_caller(test_data_combined, test_labels_combined, train_data_combined,
+                                 train_labels_combined, configs.combined)
     def PCA_selector_caller(self, test_data, test_labels, train_data, train_labels, Evaluation_label):
         print("***************** Starting PCA for " + Evaluation_label + " *****************")
         PCA_threshold = self.draw_chart_and_get_threshold_for_PCA(train_data,Evaluation_label)
@@ -104,10 +114,6 @@ class ClassifiersPiplineForPCA:
             print(pca_svm_pipeline_result)
             print("------------------------------------------")
 
-
-
-
-
             print('PCA "svc" pipeline mean results using "' + scoring_type + '" for scoring')
             print(np.average(pca_svm_pipeline_result))
             print('\nPCA "Random Forest" mean Classifier pipeline results using "' + scoring_type + '" for scoring')
@@ -162,9 +168,9 @@ class ClassifiersPiplineForPCA:
         Q1 = np.percentile(first_derivative, 25)
         Q3 = np.percentile(first_derivative, 75)
         IQR = Q3 - Q1
-        threshold = np.argmax(np.abs(first_derivative) < IQR)
-        plt.axvline(threshold, color='r', linestyle='--', label='Constant Value')
-        plt.text(threshold, 0, f'Constant Value: {threshold}', rotation=90, va='bottom')
+        numberofComponents = np.argmax(np.abs(first_derivative) * 0.2 < IQR)
+        plt.axvline(numberofComponents, color='r', linestyle='--', label='Constant Value')
+        plt.text(numberofComponents, 0, f'Constant Value: {numberofComponents}', rotation=90, va='bottom')
 
         plt.xlabel('X-axis')
         plt.ylabel('Y-axis')
@@ -181,6 +187,5 @@ class ClassifiersPiplineForPCA:
         plt.legend(loc='best')
         plt.tight_layout()
         plt.show()
-
-        threshold_for_variance_ratio = threshold / len(pca.explained_variance_ratio_)
-        return threshold_for_variance_ratio
+        print("Number of components to take in PCA: "+str(numberofComponents))
+        return numberofComponents

@@ -6,15 +6,15 @@ from Utility import Utility
 from sklearn.model_selection import KFold
 import pandas as pd
 
-class ClassifiersFlowForBrouta:
+class ClassifiersFlowForBoruta:
     utility = None
 
     def __init__(self):
-        ClassifiersFlowForBrouta.utility = Utility()
+        ClassifiersFlowForBoruta.utility = Utility()
 
-    def Brouta_feature_selector_caller(self, configs):
-        df_distance = ClassifiersFlowForBrouta.utility.get_dataframe_from_excel('output/output_distance.xlsx')['Sheet1']
-        df_velocity = ClassifiersFlowForBrouta.utility.get_dataframe_from_excel('output/output_velocity.xlsx')['Sheet1']
+    def Boruta_feature_selector_caller(self, configs):
+        df_distance = ClassifiersFlowForBoruta.utility.get_dataframe_from_excel('output/output_distance.xlsx')['Sheet1']
+        df_velocity = ClassifiersFlowForBoruta.utility.get_dataframe_from_excel('output/output_velocity.xlsx')['Sheet1']
 
         # In order to remove fisrt column which is file path.
         df_distance = df_distance.iloc[:, 1:]
@@ -26,64 +26,64 @@ class ClassifiersFlowForBrouta:
         df_combined_velocity_distance = df_combined_velocity_distance.loc[:, ~df_combined_velocity_distance.columns.duplicated()]
 
         train_data_distance, test_data_distance, train_labels_distance, test_labels_distance = \
-            ClassifiersFlowForBrouta.utility.get_test_train_from_dataframe(
+            ClassifiersFlowForBoruta.utility.get_test_train_from_dataframe(
                 df_distance, df_distance[configs.is_pd])
 
         train_data_velocity, test_data_velocity, train_labels_velocity, test_labels_velocity = \
-            ClassifiersFlowForBrouta.utility.get_test_train_from_dataframe(
+            ClassifiersFlowForBoruta.utility.get_test_train_from_dataframe(
                 df_velocity, df_velocity[configs.is_pd])
 
         train_data_combined, test_data_combined, train_labels_combined, test_labels_combined = \
-            ClassifiersFlowForBrouta.utility.get_test_train_from_dataframe(
+            ClassifiersFlowForBoruta.utility.get_test_train_from_dataframe(
                 df_combined_velocity_distance, df_combined_velocity_distance[configs.is_pd])
 
-        self.Brouta_Selector_Caller(configs, test_data_distance, test_data_velocity, test_labels_distance,
+        self.Boruta_Selector_Caller(configs, test_data_distance, test_data_velocity, test_labels_distance,
                                     test_labels_velocity, train_data_distance, train_data_velocity,
-                                    train_labels_distance,train_labels_velocity,
+                                    train_labels_distance, train_labels_velocity,
                                     train_data_combined, test_data_combined,
                                     train_labels_combined, test_labels_combined)
-        self.Brouta_classifier_caller()
+        self.Boruta_classifier_caller()
 
-    def Brouta_classifier_caller(self):
-        configs = ClassifiersFlowForBrouta.utility.get_configs()
+    def Boruta_classifier_caller(self):
+        configs = ClassifiersFlowForBoruta.utility.get_configs()
 
         df_velocity_test_data = \
-            ClassifiersFlowForBrouta.utility.get_dataframe_from_excel('output/output_velocity_selected_test_data.xlsx')[
+            ClassifiersFlowForBoruta.utility.get_dataframe_from_excel('output/output_velocity_selected_test_data.xlsx')[
                 'Sheet1']
         df_velocity_test_labels = \
-            ClassifiersFlowForBrouta.utility.get_dataframe_from_excel(
+            ClassifiersFlowForBoruta.utility.get_dataframe_from_excel(
                 'output/output_velocity_selected_test_labels.xlsx')['Sheet1']
         df_velocity_train_data = \
-            ClassifiersFlowForBrouta.utility.get_dataframe_from_excel(
+            ClassifiersFlowForBoruta.utility.get_dataframe_from_excel(
                 'output/output_velocity_selected_train_data.xlsx')['Sheet1']
         df_velocity_train_labels = \
-            ClassifiersFlowForBrouta.utility.get_dataframe_from_excel(
+            ClassifiersFlowForBoruta.utility.get_dataframe_from_excel(
                 'output/output_velocity_selected_train_labels.xlsx')['Sheet1']
 
         df_distance_test_data = \
-            ClassifiersFlowForBrouta.utility.get_dataframe_from_excel('output/output_distance_selected_test_data.xlsx')[
+            ClassifiersFlowForBoruta.utility.get_dataframe_from_excel('output/output_distance_selected_test_data.xlsx')[
                 'Sheet1']
         df_distance_test_labels = \
-            ClassifiersFlowForBrouta.utility.get_dataframe_from_excel(
+            ClassifiersFlowForBoruta.utility.get_dataframe_from_excel(
                 'output/output_distance_selected_test_labels.xlsx')['Sheet1']
         df_distance_train_data = \
-            ClassifiersFlowForBrouta.utility.get_dataframe_from_excel(
+            ClassifiersFlowForBoruta.utility.get_dataframe_from_excel(
                 'output/output_distance_selected_train_data.xlsx')['Sheet1']
         df_distance_train_labels = \
-            ClassifiersFlowForBrouta.utility.get_dataframe_from_excel(
+            ClassifiersFlowForBoruta.utility.get_dataframe_from_excel(
                 'output/output_distance_selected_train_labels.xlsx')['Sheet1']
 
         df_combined_test_data = \
-            ClassifiersFlowForBrouta.utility.get_dataframe_from_excel('output/output_combined_selected_test_data.xlsx')[
+            ClassifiersFlowForBoruta.utility.get_dataframe_from_excel('output/output_combined_selected_test_data.xlsx')[
                 'Sheet1']
         df_combined_test_labels = \
-            ClassifiersFlowForBrouta.utility.get_dataframe_from_excel(
+            ClassifiersFlowForBoruta.utility.get_dataframe_from_excel(
                 'output/output_combined_selected_test_labels.xlsx')['Sheet1']
         df_combined_train_data = \
-            ClassifiersFlowForBrouta.utility.get_dataframe_from_excel(
+            ClassifiersFlowForBoruta.utility.get_dataframe_from_excel(
                 'output/output_combined_selected_train_data.xlsx')['Sheet1']
         df_combined_train_labels = \
-            ClassifiersFlowForBrouta.utility.get_dataframe_from_excel(
+            ClassifiersFlowForBoruta.utility.get_dataframe_from_excel(
                 'output/output_combined_selected_train_labels.xlsx')['Sheet1']
 
         print("Distance classifier")
@@ -160,9 +160,9 @@ class ClassifiersFlowForBrouta:
     def print_cross_validation_scores(self, classifier_scores, model_name, scoring_type, result_type):
         print(result_type + scoring_type + " " + model_name + " :" + str(classifier_scores))
 
-    def Brouta_Selector_Caller(self, configs, test_data_distance, test_data_velocity, test_labels_distance,
+    def Boruta_Selector_Caller(self, configs, test_data_distance, test_data_velocity, test_labels_distance,
                                test_labels_velocity, train_data_distance, train_data_velocity, train_labels_distance,
-                               train_labels_velocity,train_data_combined, test_data_combined, train_labels_combined
+                               train_labels_velocity, train_data_combined, test_data_combined, train_labels_combined
                                , test_labels_combined):
         print("***************** Starting Boruta *****************")
         boruta_result, selected_features_number_for_distance = self.find_useful_features_in_boruta(train_data_distance,
@@ -171,7 +171,7 @@ class ClassifiersFlowForBrouta:
 
         "***************************** Distance **********************************"
         Train_data_distance_selected_features = train_data_distance[boruta_result]
-        ClassifiersFlowForBrouta.utility.create_feature_scattered_graph(Train_data_distance_selected_features,
+        ClassifiersFlowForBoruta.utility.create_feature_scattered_graph(Train_data_distance_selected_features,
                                                                         [1, 2, 3],
                                                                         "Boruta Train data distance selected features")
         Train_data_distance_selected_features.to_excel('output/output_distance_selected_train_data.xlsx')
@@ -188,7 +188,7 @@ class ClassifiersFlowForBrouta:
             configs.is_pd)
         print("Number of useful features to keep for velocity with Boruta: ", selected_features_number_for_velocity)
         Train_data_velocity_selected_features = train_data_velocity[boruta_result_velocity]
-        ClassifiersFlowForBrouta.utility.create_feature_scattered_graph(Train_data_velocity_selected_features,
+        ClassifiersFlowForBoruta.utility.create_feature_scattered_graph(Train_data_velocity_selected_features,
                                                                         [1, 2, 3],
                                                                         "Boruta Train data velocity selected features")
         Train_data_velocity_selected_features.to_excel('output/output_velocity_selected_train_data.xlsx')
@@ -205,7 +205,7 @@ class ClassifiersFlowForBrouta:
             configs.is_pd)
         print("Number of useful features to keep for combined with Boruta: ", selected_features_number_for_combined)
         Train_data_combined_selected_features = train_data_combined[boruta_result_combined]
-        ClassifiersFlowForBrouta.utility.create_feature_scattered_graph(Train_data_combined_selected_features,
+        ClassifiersFlowForBoruta.utility.create_feature_scattered_graph(Train_data_combined_selected_features,
                                                                         [1, 2, 3],
                                                                         "Boruta Train data velocity selected features")
         Train_data_combined_selected_features.to_excel('output/output_combined_selected_train_data.xlsx')
@@ -222,10 +222,10 @@ class ClassifiersFlowForBrouta:
         y = dataframe[target_column]
 
         # Initialize the Random Forest classifier
-        rf = RandomForestClassifier(n_jobs=-1, class_weight='balanced', max_depth=5)
+        rf = RandomForestClassifier(n_jobs=-1, class_weight='balanced', max_depth=7 ,max_features=None)
 
         # Initialize the Boruta feature selector
-        boruta_selector = BorutaPy(estimator=rf, n_estimators='auto', verbose=2, random_state=42)
+        boruta_selector = BorutaPy(estimator=rf, max_iter=100, n_estimators='auto', verbose=2, random_state=42)
 
         # Perform feature selection
         boruta_selector.fit(X.values, y.values)
@@ -233,7 +233,6 @@ class ClassifiersFlowForBrouta:
         # Get the selected features
         selected_features = X.columns[boruta_selector.support_].tolist()
 
-        # result[target_column] = y
         selected_features.append(target_column)
         ## output is features name and target column which is pd
         return selected_features, len(selected_features)
