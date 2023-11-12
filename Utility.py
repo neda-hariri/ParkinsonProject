@@ -85,7 +85,7 @@ class Utility:
         plt.savefig(velocity_chart_path)
         plt.close(velocity_chart)
 
-    def create_feature_scattered_graph(self, df, column_indices, plot_title):
+    def create_feature_scattered_graph(self, df, column_indices, column_names, plot_title):
         # Extract other columns as the values for the other axis
         selected_data = df.iloc[:, column_indices]
 
@@ -104,11 +104,15 @@ class Utility:
             z = selected_data.iloc[:, 2]
 
             ax.scatter(x, y, z, c=[colors[i*10]], label=f'Column {column_index}')
+        if column_names is None:
+            ax.set_xlabel(df.columns[column_indices[0]])
+            ax.set_ylabel(df.columns[column_indices[1]])
+            ax.set_zlabel(df.columns[column_indices[2]])
+        elif len(column_names) == num_columns:
+            ax.set_xlabel(column_names[0])
+            ax.set_ylabel(column_names[1])
+            ax.set_zlabel(column_names[2])
 
-        ax.set_xlabel(df.columns[column_indices[0]])
-        ax.set_ylabel(df.columns[column_indices[1]])
-        ax.set_zlabel(df.columns[column_indices[2]])
-        ax.set_title("3D Scatter Plot with Different Colors for Selected Columns")
-        ax.legend()
+        ax.legend(column_names)
         plt.title(plot_title)
         plt.show()

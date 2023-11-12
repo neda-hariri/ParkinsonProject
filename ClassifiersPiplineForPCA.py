@@ -161,7 +161,10 @@ class ClassifiersPiplineForPCA:
         first_derivative = np.gradient(pca.explained_variance_ratio_, x)
 
         ClassifiersPiplineForPCA.utility.create_feature_scattered_graph(pd.DataFrame(pca.components_),
-                                                                        [1, 2, 3],"PCA first three component in "+Evaluation_label)
+                                                                        [1, 2, 3],
+                                                                        ["First Component", "Second Component",
+                                                                         "Third Component"]
+                                                                        ,"Scatter Plot of PCA "+Evaluation_label)
         plt.figure(figsize=(8, 6))
         plt.plot(x, first_derivative, label='First Derivative')
         # Calculate inter-quartile Range
@@ -169,21 +172,21 @@ class ClassifiersPiplineForPCA:
         Q3 = np.percentile(first_derivative, 75)
         IQR = Q3 - Q1
         numberofComponents = np.argmax(np.abs(first_derivative) * 0.2 < IQR)
-        plt.axvline(numberofComponents, color='r', linestyle='--', label='Constant Value')
-        plt.text(numberofComponents, 0, f'Constant Value: {numberofComponents}', rotation=90, va='bottom')
+        plt.axvline(numberofComponents, color='g', linestyle='--', label='Number of Selected features')
+        plt.text(numberofComponents+1.5, 0.020, f'Number of Selected features: {numberofComponents}', rotation=90, va='bottom', color='g',)
 
         plt.xlabel('X-axis')
         plt.ylabel('Y-axis')
-        plt.title('Second Derivative of a Series')
+        plt.title('Cumulative Explained Variance Plot for PCA')
         plt.legend()
 
         ## add plot for Individual and Cumulative explained variance
         plt.bar(x, pca.explained_variance_ratio_, alpha=0.5, align='center',
-                label='Individual explained variance')
+                label='Individual Explained Variance')
         plt.step(x, explained_variance_ratio_cumsum, where='mid',
-                 label='Cumulative explained variance')
-        plt.ylabel('Explained variance ratio')
-        plt.xlabel('Principal component index')
+                 label='Cumulative Explained Variance')
+        plt.ylabel('Explained Variance Ratio')
+        plt.xlabel('Principal Component Index')
         plt.legend(loc='best')
         plt.tight_layout()
         plt.show()

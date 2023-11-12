@@ -6,6 +6,7 @@ from Utility import Utility
 from sklearn.model_selection import KFold
 import pandas as pd
 
+
 class ClassifiersFlowForBoruta:
     utility = None
 
@@ -23,7 +24,8 @@ class ClassifiersFlowForBoruta:
         df_combined_velocity_distance = pd.concat([df_distance, df_velocity], axis=1)
         df_combined_velocity_distance = df_combined_velocity_distance.iloc[:, 1:]
         # Remove one of the columns with the same name (e.g., remove the first occurrence)
-        df_combined_velocity_distance = df_combined_velocity_distance.loc[:, ~df_combined_velocity_distance.columns.duplicated()]
+        df_combined_velocity_distance = df_combined_velocity_distance.loc[:,
+                                        ~df_combined_velocity_distance.columns.duplicated()]
 
         train_data_distance, test_data_distance, train_labels_distance, test_labels_distance = \
             ClassifiersFlowForBoruta.utility.get_test_train_from_dataframe(
@@ -142,13 +144,17 @@ class ClassifiersFlowForBoruta:
             print("------------------------------------------")
             type_of_result = "Mean of "
             self.print_cross_validation_scores(np.mean(knn_classifier_scores), 'KNN', scoring_type, type_of_result)
-            self.print_cross_validation_scores(np.mean(random_forest_classifier_scores), 'random_forest', scoring_type, type_of_result)
-            self.print_cross_validation_scores(np.mean(xg_boost_classifier_scores), 'xg_boost', scoring_type, type_of_result)
+            self.print_cross_validation_scores(np.mean(random_forest_classifier_scores), 'random_forest', scoring_type,
+                                               type_of_result)
+            self.print_cross_validation_scores(np.mean(xg_boost_classifier_scores), 'xg_boost', scoring_type,
+                                               type_of_result)
             self.print_cross_validation_scores(np.mean(svm_classifier_scores), 'svm', scoring_type, type_of_result)
             type_of_result = "Standard deviation of "
             self.print_cross_validation_scores(np.std(knn_classifier_scores), 'KNN', scoring_type, type_of_result)
-            self.print_cross_validation_scores(np.std(random_forest_classifier_scores), 'random_forest', scoring_type, type_of_result)
-            self.print_cross_validation_scores(np.std(xg_boost_classifier_scores), 'xg_boost', scoring_type, type_of_result)
+            self.print_cross_validation_scores(np.std(random_forest_classifier_scores), 'random_forest', scoring_type,
+                                               type_of_result)
+            self.print_cross_validation_scores(np.std(xg_boost_classifier_scores), 'xg_boost', scoring_type,
+                                               type_of_result)
             self.print_cross_validation_scores(np.std(svm_classifier_scores), 'svm', scoring_type, type_of_result)
 
             knn_classifier_scores = []
@@ -172,7 +178,8 @@ class ClassifiersFlowForBoruta:
         "***************************** Distance **********************************"
         Train_data_distance_selected_features = train_data_distance[boruta_result]
         ClassifiersFlowForBoruta.utility.create_feature_scattered_graph(Train_data_distance_selected_features,
-                                                                        [1, 2, 3],
+                                                                        [1, 2, 3], ["First Feature", "Second Feature",
+                                                                                    "Third Feature"],
                                                                         "Boruta Train data distance selected features")
         Train_data_distance_selected_features.to_excel('output/output_distance_selected_train_data.xlsx')
         Test_data_distance_selected_features = test_data_distance[boruta_result]
@@ -190,6 +197,8 @@ class ClassifiersFlowForBoruta:
         Train_data_velocity_selected_features = train_data_velocity[boruta_result_velocity]
         ClassifiersFlowForBoruta.utility.create_feature_scattered_graph(Train_data_velocity_selected_features,
                                                                         [1, 2, 3],
+                                                                        ["First Feature", "Second Feature",
+                                                                         "Third Feature"],
                                                                         "Boruta Train data velocity selected features")
         Train_data_velocity_selected_features.to_excel('output/output_velocity_selected_train_data.xlsx')
         Test_data_velocity_selected_features = test_data_velocity[boruta_result_velocity]
@@ -207,6 +216,8 @@ class ClassifiersFlowForBoruta:
         Train_data_combined_selected_features = train_data_combined[boruta_result_combined]
         ClassifiersFlowForBoruta.utility.create_feature_scattered_graph(Train_data_combined_selected_features,
                                                                         [1, 2, 3],
+                                                                        ["First Feature", "Second Feature",
+                                                                         "Third Feature"],
                                                                         "Boruta Train data velocity selected features")
         Train_data_combined_selected_features.to_excel('output/output_combined_selected_train_data.xlsx')
         Test_data_combined_selected_features = test_data_combined[boruta_result_combined]
@@ -222,10 +233,10 @@ class ClassifiersFlowForBoruta:
         y = dataframe[target_column]
 
         # Initialize the Random Forest classifier
-        rf = RandomForestClassifier(n_jobs=-1, class_weight='balanced', max_depth=7 ,max_features=None)
+        rf = RandomForestClassifier(n_jobs=-1, class_weight='balanced', max_depth=7, max_features=None)
 
         # Initialize the Boruta feature selector
-        boruta_selector = BorutaPy(estimator=rf, max_iter=100, n_estimators='auto', verbose=2, random_state=42)
+        boruta_selector = BorutaPy(estimator=rf, max_iter=100, n_estimators='auto', verbose=0, random_state=42)
 
         # Perform feature selection
         boruta_selector.fit(X.values, y.values)
